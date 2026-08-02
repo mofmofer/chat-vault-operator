@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chat Vault Operator</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>Chat Vault Operator</h1>
+      <p class="banner">
+        ローカル専用 / 外部通信なし / 会話本文は読み取らない / アーカイブ実行は未実装
+      </p>
+    </header>
+
+    <section class="toolbar">
+      <button id="btn-scan" type="button" class="primary">サイドバーをスキャン</button>
+      <span id="scan-summary" class="muted"></span>
+    </section>
+
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <ul id="issues" class="issues" hidden></ul>
+
+    <nav class="tabs" role="tablist">
+      <button id="tab-list" type="button" class="tab active" role="tab">会話一覧</button>
+      <button id="tab-dryrun" type="button" class="tab" role="tab">Dry Run</button>
+      <button id="tab-log" type="button" class="tab" role="tab">操作ログ</button>
+      <button id="tab-data" type="button" class="tab" role="tab">データ</button>
+    </nav>
+
+    <!-- ============ 会話一覧 ============ -->
+    <section id="view-list" class="view">
+      <div class="filters">
+        <input id="filter-text" type="search" placeholder="タイトル検索" autocomplete="off" />
+        <div class="filter-row">
+          <label>
+            Vault反映
+            <select id="filter-reflection">
+              <option value="all">すべて</option>
+              <option value="unreviewed">unreviewed</option>
+              <option value="reflection_required">reflection_required</option>
+              <option value="reflected">reflected</option>
+              <option value="not_required">not_required</option>
+            </select>
+          </label>
+          <label>
+            アーカイブ
+            <select id="filter-archive">
+              <option value="all">すべて</option>
+              <option value="active">active</option>
+              <option value="candidate">candidate</option>
+              <option value="approved">approved</option>
+              <option value="archive_requested">archive_requested</option>
+              <option value="archive_observed">archive_observed</option>
+              <option value="reconciliation_required">reconciliation_required</option>
+            </select>
+          </label>
+        </div>
+        <div class="filter-row">
+          <button id="btn-select-all" type="button">表示中をすべて選択</button>
+          <button id="btn-select-none" type="button">選択解除</button>
+          <span id="selection-count" class="muted"></span>
+        </div>
+      </div>
+
+      <details class="panel" open>
+        <summary>選択した会話への操作</summary>
+
+        <fieldset>
+          <legend>Vault反映状態</legend>
+          <label>
+            状態
+            <select id="reflection-status">
+              <option value="unreviewed">unreviewed</option>
+              <option value="reflection_required">reflection_required</option>
+              <option value="reflected">reflected</option>
+              <option value="not_required">not_required</option>
+            </select>
+          </label>
+          <label>
+            反映先参照 (Vaultノート / GitHub Issue など)
+            <input id="reflection-reference" type="text" autocomplete="off" />
+          </label>
+          <label>
+            反映メモ (短文・会話本文は書かないこと)
+            <input id="reflection-summary" type="text" autocomplete="off" />
+          </label>
+          <button id="btn-apply-reflection" type="button" class="primary">
+            選択に反映状態を適用
+          </button>
+        </fieldset>
+
+        <fieldset>
+          <legend>アーカイブ候補</legend>
+          <button id="btn-add-candidates" type="button">
+            条件を満たす会話を候補に追加
+          </button>
+          <button id="btn-remove-candidates" type="button">候補から解除</button>
+          <p class="hint">
+            現在開いている会話 / 当日開始 / Project配下 / 一意識別不能 の会話は既定で除外されます。
+            個別に追加する場合は各行の「候補に追加」を使用してください。
+          </p>
+        </fieldset>
+
+        <fieldset>
+          <legend>承認</legend>
+          <button id="btn-approve" type="button">選択を承認 (approved)</button>
+          <button id="btn-revoke" type="button">承認を取り消し</button>
+          <p class="hint">
+            reflected または not_required の会話のみ承認できます。
+          </p>
+        </fieldset>
+      </details>
+
+      <ul id="conversation-list" class="conversations"></ul>
+      <p id="list-empty" class="muted empty">
+        まだ会話がありません。chatgpt.com を開いて「サイドバーをスキャン」を実行してください。
+      </p>
+    </section>
+
+    <!-- ============ Dry Run ============ -->
+    <section id="view-dryrun" class="view" hidden>
+      <button id="btn-dryrun" type="button" class="primary">Dry Run を実行</button>
+      <p class="hint">
+        Dry Run は表示のみで、いかなる状態も変更しません。
+      </p>
+      <p id="dryrun-headline" class="headline"></p>
+      <div id="dryrun-output"></div>
+    </section>
+
+    <!-- ============ 操作ログ ============ -->
+    <section id="view-log" class="view" hidden>
+      <button id="btn-clear-log" type="button">ログを消去</button>
+      <p class="hint">ローカル操作ログのみを消去します。会話データには影響しません。</p>
+      <ul id="log-list" class="log"></ul>
+    </section>
+
+    <!-- ============ データ ============ -->
+    <section id="view-data" class="view" hidden>
+      <fieldset>
+        <legend>エクスポート</legend>
+        <button id="btn-export" type="button">JSONをダウンロード</button>
+        <p class="hint">会話本文は含まれません。メタデータと反映状態のみです。</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>インポート</legend>
+        <input id="import-file" type="file" accept="application/json,.json" />
+        <p class="hint">
+          スキーマ検証に失敗した場合、既存データは一切変更されません。
+          マージは conversation_id をキーに行います。
+        </p>
+      </fieldset>
+
+      <fieldset>
+        <legend>アーカイブ実行</legend>
+        <button id="btn-archive" type="button" disabled title="第1段階では実装されていません">
+          アーカイブを実行 (次フェーズ)
+        </button>
+        <p class="hint">
+          このリリースは ChatGPT に対する変更を一切行いません。実行機能は次フェーズです。
+        </p>
+      </fieldset>
+    </section>
+
+    <footer class="app-footer">
+      保存先は chrome.storage.local のみ。外部送信・会話本文の保存・削除機能はありません。
+    </footer>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

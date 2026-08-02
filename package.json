@@ -1,0 +1,30 @@
+{
+  "name": "chat-vault-operator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-only Chrome MV3 extension that inventories ChatGPT conversation metadata, tracks Vault reflection status, and previews archive candidates via Dry Run.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "node scripts/build.mjs",
+    "check:forbidden": "node scripts/check-forbidden.mjs",
+    "check:manifest": "node scripts/check-manifest.mjs",
+    "verify": "npm run lint && npm run typecheck && npm run test && npm run build && npm run check:forbidden && npm run check:manifest"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.9.1",
+    "@types/chrome": "0.0.268",
+    "@types/node": "20.14.10",
+    "esbuild": "0.21.5",
+    "eslint": "9.9.1",
+    "typescript": "5.5.4",
+    "typescript-eslint": "8.3.0",
+    "vitest": "2.0.5"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Chat Vault Operator",
+  "version": "0.1.0",
+  "description": "Local-only inventory of ChatGPT conversation metadata with Vault reflection tracking and archive Dry Run. No conversation content is read or stored.",
+  "minimum_chrome_version": "116",
+  "permissions": ["storage", "sidePanel", "scripting"],
+  "host_permissions": ["https://chatgpt.com/*"],
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Chat Vault Operator"
+  },
+  "side_panel": {
+    "default_path": "sidepanel/index.html"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'none'"
+  }
+}
