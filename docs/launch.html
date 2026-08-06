@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat Vault Operator Launcher</title>
+  <style>
+    body { margin: 0; padding: 24px; font-family: system-ui, sans-serif; line-height: 1.6; color: #222; }
+    .status { padding: 16px; border-radius: 12px; background: #f1f5f3; }
+  </style>
+</head>
+<body>
+  <h1>Chat Vault Operator</h1>
+  <p class="status" id="status">ChatGPTへ起動コードを送信しています…</p>
+  <script>
+    (async () => {
+      const status = document.getElementById('status');
+      const params = new URLSearchParams(location.search);
+      const target = params.get('target');
+      const nonce = params.get('nonce');
+      const allowedTargets = new Set(['https://chatgpt.com', 'https://chat.openai.com']);
+
+      if (!window.opener || !target || !nonce || !allowedTargets.has(target)) {
+        status.textContent = '起動元を確認できませんでした。ChatGPT上のブックマークから実行してください。';
+        return;
+      }
+
+      try {
+        const response = await fetch('./chat-vault-operator.js', { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const code = await response.text();
+        window.opener.postMessage({ type: 'CVO_CODE', nonce, code }, target);
+        status.textContent = '送信しました。このタブは自動的に閉じます。';
+        setTimeout(() => window.close(), 250);
+      } catch (error) {
+        status.textContent = `起動コードの取得に失敗しました: ${error.message}`;
+      }
+    })();
+  </script>
+</body>
+</html>
