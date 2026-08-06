@@ -19,17 +19,14 @@
       const target = params.get('target');
       const nonce = params.get('nonce');
       const allowedTargets = new Set(['https://chatgpt.com', 'https://chat.openai.com']);
-      const allowedHosts = new Set(['cdn.jsdelivr.net', 'mofmofer.github.io']);
 
-      if (!window.opener || !target || !nonce || !allowedTargets.has(target) || !allowedHosts.has(location.hostname)) {
+      if (!window.opener || !target || !nonce || !allowedTargets.has(target) || location.hostname !== 'raw.githack.com') {
         status.textContent = '起動元を確認できませんでした。ChatGPT上のブックマークから実行してください。';
         return;
       }
 
       try {
-        const codeUrl = location.hostname === 'cdn.jsdelivr.net'
-          ? new URL('../src/chat-vault-operator-mini.js', location.href)
-          : new URL('./chat-vault-operator.js', location.href);
+        const codeUrl = new URL('../src/chat-vault-operator-mini.js', location.href);
         const response = await fetch(codeUrl, { cache: 'no-store' });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const code = await response.text();
