@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat Vault Operator</title>
+  <style>
+    body { max-width: 680px; margin: 0 auto; padding: 32px 20px; font-family: system-ui, sans-serif; line-height: 1.7; color: #1e1e1e; }
+    button { width: 100%; min-height: 52px; border: 0; border-radius: 12px; padding: 12px 16px; background: #107a58; color: white; font: inherit; font-weight: 700; }
+    textarea { width: 100%; min-height: 120px; margin-top: 12px; padding: 10px; border: 1px solid #bbb; border-radius: 10px; font-family: monospace; box-sizing: border-box; }
+    .note { padding: 12px 14px; border-radius: 10px; background: #f2f6f4; }
+    code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <h1>Chat Vault Operator</h1>
+  <p>Android版ChromeでChatGPTの複数チャットを選択し、まとめてアーカイブするためのツールです。</p>
+  <button id="copy" type="button">短いブックマークレットをコピー</button>
+  <p id="status" aria-live="polite"></p>
+  <textarea id="bookmarklet" readonly aria-label="ブックマークレット"></textarea>
+  <ol>
+    <li>上のボタンでコードをコピーします。</li>
+    <li>Chromeで任意のページをブックマークし、そのブックマークを編集します。</li>
+    <li>名前を「Chat整理」、URLをコピーしたコードへ置き換えます。</li>
+    <li><code>chatgpt.com</code>を開き、アドレスバーに「Chat整理」と入力して候補のブックマークを実行します。</li>
+    <li>一瞬だけGitHub Pagesのタブが開き、実装をChatGPTへ渡した後に閉じます。</li>
+  </ol>
+  <p class="note">このツールは削除を行いません。実装コードはGitHub Pagesから受け取りますが、アクセストークン、会話タイトル、会話本文をGitHubへ送信しません。</p>
+  <script>
+    const pagesOrigin = 'https://mofmofer.github.io';
+    const launcher = `javascript:(()=>{const o='${pagesOrigin}',n=Math.random().toString(36).slice(2),h=e=>{if(e.origin!==o||e.data?.type!=='CVO_CODE'||e.data.nonce!==n)return;removeEventListener('message',h);try{(0,eval)(e.data.code)}catch(x){alert('起動失敗: '+x.message)}};addEventListener('message',h);const w=open(o+'/chat-vault-operator/launch.html?target='+encodeURIComponent(location.origin)+'&nonce='+n,'_blank');if(!w){removeEventListener('message',h);alert('ポップアップを許可してください')}})()`;
+    const textarea = document.getElementById('bookmarklet');
+    const status = document.getElementById('status');
+    textarea.value = launcher;
+
+    document.getElementById('copy').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(launcher);
+        status.textContent = `コピーしました（${launcher.length}文字）。`;
+      } catch (error) {
+        textarea.focus();
+        textarea.select();
+        status.textContent = '自動コピーに失敗しました。下の欄を長押ししてコピーしてください。';
+      }
+    });
+  </script>
+</body>
+</html>

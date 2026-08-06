@@ -1,0 +1,16 @@
+{
+  "name": "chat-vault-operator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Mobile-first ChatGPT bulk archiver delivered as a self-contained bookmarklet.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test",
+    "check": "npm run build && npm test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
