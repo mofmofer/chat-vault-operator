@@ -1,10 +1,17 @@
 # chat-vault-operator
 
-Android版Chromeを中心に、ChatGPTの会話を複数選択して安全にアーカイブするためのツールです。
+Android版Chromeを中心に、ChatGPTの会話を複数選択して安全にアーカイブするツールです。
 
-## 現在の提供形態
+## 提供方式
 
-Android版Chromeは拡張機能をインストールできないため、MVPは**自己完結型ブックマークレット**として提供します。PC版Chromeでも同じブックマークレットを使用できます。
+Android版Chromeは拡張機能をインストールできないため、GitHub Pagesと短いブックマークレットを組み合わせます。
+
+1. ChatGPT上で短いブックマークレットを実行
+2. GitHub Pagesの起動タブが実装コードを読み込む
+3. `postMessage`でChatGPTタブへ実装コードを渡す
+4. ChatGPTタブ上で一覧取得・アーカイブを実行
+
+長い実装コードをChromeのブックマークURL欄へ直接保存しないため、途中切れを避けられます。
 
 ### 機能
 
@@ -20,21 +27,19 @@ Android版Chromeは拡張機能をインストールできないため、MVPは*
 
 ## Android版Chromeへの導入
 
-ローカルで `npm run build` を実行し、`dist/chat-vault-operator-mini-bookmarklet.txt` の内容をコピーします。Android ChromeのURL欄で途中切れしにくいよう、軽量版は1万文字未満をCIで保証します。
+GitHub Pagesのインストーラーで「短いブックマークレットをコピー」を押します。
 
 1. Android版Chromeで任意のページをブックマークします。
 2. ブックマークを編集し、名前を `Chat整理`、URLをコピーした内容へ置き換えます。
-3. 保存後、URL欄の先頭が `javascript:`、末尾が `));` になっていることを確認します。
-4. `https://chatgpt.com`へログインします。
-5. ChatGPTページを開いたままアドレスバーに `Chat整理` と入力し、候補に表示されるブックマークを選択します。
-
-ブックマーク一覧から直接開くのではなく、ChatGPTページ上でアドレスバーの候補から実行してください。
+3. `https://chatgpt.com`へログインします。
+4. ChatGPTページを開いたままアドレスバーに `Chat整理` と入力し、候補に表示されるブックマークを選択します。
+5. GitHub Pagesのタブが一瞬開き、自動的に閉じた後、ChatGPT上に整理画面が表示されます。
 
 ## セキュリティ方針
 
-- ChatGPTのアクセストークンはメモリ上でのみ使用
+- ChatGPTのアクセストークンはChatGPTタブのメモリ上でのみ使用
 - LocalStorage、IndexedDB、Cookieへの独自保存なし
-- 外部サーバーへの送信なし
+- GitHub Pagesへアクセストークンや会話データを送信しない
 - 会話本文を取得しない
 - アーカイブ対象と件数を実行前に確認
 - 通常は最大3件だけ並列実行し、利用制限検知後は逐次実行
@@ -46,12 +51,12 @@ npm ci
 npm run check
 ```
 
-生成物:
+主なファイル:
 
-- `dist/chat-vault-operator.js`: フル版の実行コード
-- `dist/chat-vault-operator-bookmarklet.txt`: フル版ブックマークレット
-- `dist/chat-vault-operator-mini.js`: Android Chrome向け軽量版
-- `dist/chat-vault-operator-mini-bookmarklet.txt`: Android ChromeのURL欄へ貼り付ける軽量版
+- `src/chat-vault-operator-mini.js`: Android Chrome向け実装
+- `docs/index.html`: インストーラー
+- `docs/launch.html`: `postMessage`ランチャー
+- `.github/workflows/pages.yml`: GitHub Pagesデプロイ
 
 ## 技術上の注意
 
