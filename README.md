@@ -11,16 +11,17 @@ Android版Chromeは拡張機能をインストールできないため、MVPは*
 - 通常チャットの一覧取得（最大2,000件）
 - タイトル検索
 - 表示中の全選択・選択解除
-- 選択した会話の一括アーカイブ
+- 選択した会話の一括アーカイブ（通常は3件並列）
 - プロジェクト内チャットの追加取得（任意）
-- HTTP 429発生時の待機・再試行
+- HTTP 429発生時は自動的に1件ずつへ減速し、待機・再試行
+- 通常失敗した会話だけを最後に1回再試行
 - 成功・失敗件数の表示
 
 意図しないデータ消失を避けるため、**削除機能は実装しません**。
 
 ## Android版Chromeへの導入
 
-GitHub Pagesのインストーラーで「ブックマークレットをコピー」を押すか、ローカルで `npm run build` を実行して `dist/bookmarklet.txt` の内容をコピーします。
+GitHub Pagesのインストーラーで「ブックマークレットをコピー」を押すか、ローカルで `npm run build` を実行して、Android Chrome向けには `dist/chat-vault-operator-mini-bookmarklet.txt` の内容をコピーします。
 
 1. Android版Chromeで任意のページをブックマークします。
 2. ブックマークを編集し、名前を `Chat整理`、URLをコピーした内容へ置き換えます。
@@ -36,7 +37,7 @@ GitHub Pagesのインストーラーで「ブックマークレットをコピ�
 - 外部サーバーへの送信なし
 - 会話本文を取得しない
 - アーカイブ対象と件数を実行前に確認
-- API呼び出しは逐次実行
+- 通常は最大3件だけ並列実行し、利用制限検知後は逐次実行
 
 ## 開発
 
@@ -47,8 +48,10 @@ npm run check
 
 生成物:
 
-- `dist/chat-vault-operator.js`: 読みやすい実行コード
-- `dist/bookmarklet.txt`: ChromeのブックマークURLへ貼り付けるコード
+- `dist/chat-vault-operator.js`: フル版の実行コード
+- `dist/chat-vault-operator-bookmarklet.txt`: フル版ブックマークレット
+- `dist/chat-vault-operator-mini.js`: Android Chrome向け軽量版
+- `dist/chat-vault-operator-mini-bookmarklet.txt`: Android ChromeのURL欄へ貼り付ける軽量版
 
 ## 技術上の注意
 
