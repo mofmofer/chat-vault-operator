@@ -19,3 +19,4 @@ async function build(name, { encode = true } = {}) {
 await mkdir(distDir, { recursive: true });
 await build('chat-vault-operator');
 await build('chat-vault-operator-mini', { encode: false });
+await build('chat-vault-operator-chrome-self-contained', { encode: false });
