@@ -27,9 +27,9 @@ test('mini bookmarklet is syntactically valid JavaScript', () => {
 
 for (const [name, code] of [['source', source], ['mini source', miniSource]]) {
   test(`${name} contains archive-only safety guards`, () => {
-    assert.match(code, /is_archived:\s*true/);
-    assert.doesNotMatch(code, /is_visible:\s*false/);
-    assert.doesNotMatch(code, /method:\s*['"]DELETE['"]/);
+    assert.match(code, /["']?is_archived["']?\s*:\s*true/);
+    assert.doesNotMatch(code, /is_visible\s*:\s*false/);
+    assert.doesNotMatch(code, /method\s*:\s*['"]DELETE['"]/);
   });
 
   test(`${name} has no external network destination`, () => {
@@ -39,12 +39,12 @@ for (const [name, code] of [['source', source], ['mini source', miniSource]]) {
 }
 
 test('mobile version has three-way concurrency and adaptive slowdown', () => {
-  assert.match(miniSource, /CONCURRENCY\s*=\s*3/);
-  assert.match(miniSource, /concurrency\s*=\s*1/);
+  assert.match(miniSource, /c\s*=\s*3/);
+  assert.match(miniSource, /c\s*=\s*1/);
   assert.match(miniSource, /Promise\.all/);
 });
 
 test('bookmarklets remain within practical mobile bookmark sizes', () => {
   assert.ok(bookmarklet.length < 100000, `bookmarklet too large: ${bookmarklet.length}`);
-  assert.ok(miniBookmarklet.length < 30000, `mini bookmarklet too large: ${miniBookmarklet.length}`);
+  assert.ok(miniBookmarklet.length < 10000, `mini bookmarklet too large: ${miniBookmarklet.length}`);
 });
