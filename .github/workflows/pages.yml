@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
       - name: Prepare site
-        run: cp src/chat-vault-operator.js docs/chat-vault-operator.js
+        run: cp src/chat-vault-operator-mini.js docs/chat-vault-operator.js
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs
