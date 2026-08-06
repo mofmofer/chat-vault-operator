@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat Vault Operator</title>
+  <style>
+    body { max-width: 680px; margin: 0 auto; padding: 32px 20px; font-family: system-ui, sans-serif; line-height: 1.7; color: rgb(30,30,30); }
+    button { width: 100%; min-height: 52px; border: 0; border-radius: 12px; padding: 12px 16px; background: rgb(16,122,88); color: white; font: inherit; font-weight: 700; }
+    .note { padding: 12px 14px; border-radius: 10px; background: rgb(242,246,244); }
+    code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <h1>Chat Vault Operator</h1>
+  <p>Android版ChromeでChatGPTの複数チャットを選択し、まとめてアーカイブするためのブックマークレットです。</p>
+  <button id="copy" type="button">ブックマークレットをコピー</button>
+  <p id="status" aria-live="polite"></p>
+  <ol>
+    <li>Chromeで任意のページをブックマークします。</li>
+    <li>そのブックマークを編集し、名前を「Chat整理」、URLをコピーした内容に置き換えます。</li>
+    <li><code>chatgpt.com</code>を開き、アドレスバーに「Chat整理」と入力して候補のブックマークを実行します。</li>
+  </ol>
+  <p class="note">このツールは削除を行いません。アクセストークンや会話データを保存・外部送信せず、実行中のChatGPTページから内部APIへ直接アクセスします。</p>
+  <script>
+    document.getElementById('copy').addEventListener('click', async () => {
+      const status = document.getElementById('status');
+      try {
+        const response = await fetch('./chat-vault-operator.js', { cache: 'no-store' });
+        if (!response.ok) throw new Error('実行コードを取得できませんでした');
+        const source = (await response.text()).trim().replace(/\s+/g, ' ');
+        const bookmarklet = `javascript:${encodeURIComponent(source)}`;
+        await navigator.clipboard.writeText(bookmarklet);
+        status.textContent = 'コピーしました。ChromeのブックマークURLに貼り付けてください。';
+      } catch (error) {
+        status.textContent = `コピーに失敗しました: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
