@@ -23,12 +23,12 @@
     <li>Chromeで任意のページをブックマークし、そのブックマークを編集します。</li>
     <li>名前を「Chat整理」、URLをコピーしたコードへ置き換えます。</li>
     <li><code>chatgpt.com</code>を開き、アドレスバーに「Chat整理」と入力して候補のブックマークを実行します。</li>
-    <li>一瞬だけ公開CDNのタブが開き、実装をChatGPTへ渡した後に閉じます。</li>
+    <li>一瞬だけraw.githackのタブが開き、実装をChatGPTへ渡した後に閉じます。</li>
   </ol>
   <p class="note">このツールは削除を行いません。実装コードは公開リポジトリの固定コミットから受け取りますが、アクセストークン、会話タイトル、会話本文を外部へ送信しません。</p>
   <script>
-    const launcherOrigin = 'https://cdn.jsdelivr.net';
-    const launcherUrl = 'https://cdn.jsdelivr.net/gh/mofmofer/chat-vault-operator@6e145c5ac28fc744666179cae482d27a4308c491/docs/launch.html';
+    const launcherOrigin = 'https://raw.githack.com';
+    const launcherUrl = 'https://raw.githack.com/mofmofer/chat-vault-operator/be7a1d8ccf7f435bbad890cb4a335f458432a840/docs/launch.html';
     const launcher = `javascript:(()=>{const o='${launcherOrigin}',u='${launcherUrl}',n=Math.random().toString(36).slice(2),h=e=>{if(e.origin!==o||e.data?.type!=='CVO_CODE'||e.data.nonce!==n)return;removeEventListener('message',h);try{(0,eval)(e.data.code)}catch(x){alert('起動失敗: '+x.message)}};addEventListener('message',h);const w=open(u+'?target='+encodeURIComponent(location.origin)+'&nonce='+n,'_blank');if(!w){removeEventListener('message',h);alert('ポップアップを許可してください')}})()`;
     const textarea = document.getElementById('bookmarklet');
     const status = document.getElementById('status');
