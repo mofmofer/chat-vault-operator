@@ -12,7 +12,6 @@ Android版Chromeは拡張機能をインストールできないため、MVPは*
 - タイトル検索
 - 表示中の全選択・選択解除
 - 選択した会話の一括アーカイブ（通常は3件並列）
-- プロジェクト内チャットの追加取得（任意）
 - HTTP 429発生時は自動的に1件ずつへ減速し、待機・再試行
 - 通常失敗した会話だけを最後に1回再試行
 - 成功・失敗件数の表示
@@ -21,12 +20,13 @@ Android版Chromeは拡張機能をインストールできないため、MVPは*
 
 ## Android版Chromeへの導入
 
-GitHub Pagesのインストーラーで「ブックマークレットをコピー」を押すか、ローカルで `npm run build` を実行して、Android Chrome向けには `dist/chat-vault-operator-mini-bookmarklet.txt` の内容をコピーします。
+ローカルで `npm run build` を実行し、`dist/chat-vault-operator-mini-bookmarklet.txt` の内容をコピーします。Android ChromeのURL欄で途中切れしにくいよう、軽量版は1万文字未満をCIで保証します。
 
 1. Android版Chromeで任意のページをブックマークします。
 2. ブックマークを編集し、名前を `Chat整理`、URLをコピーした内容へ置き換えます。
-3. `https://chatgpt.com`へログインします。
-4. ChatGPTページを開いたままアドレスバーに `Chat整理` と入力し、候補に表示されるブックマークを選択します。
+3. 保存後、URL欄の先頭が `javascript:`、末尾が `));` になっていることを確認します。
+4. `https://chatgpt.com`へログインします。
+5. ChatGPTページを開いたままアドレスバーに `Chat整理` と入力し、候補に表示されるブックマークを選択します。
 
 ブックマーク一覧から直接開くのではなく、ChatGPTページ上でアドレスバーの候補から実行してください。
 
