@@ -48,15 +48,15 @@ test('legacy mobile version has three-way concurrency and adaptive slowdown', ()
   assert.match(miniSource, /Promise\.all/);
 });
 
-test('Chrome self-contained version changes only archive execution to batches of three', () => {
-  assert.match(chromeSource, /i\s*\+=\s*3/);
-  assert.match(chromeSource, /slice\(i,i\+3\)/);
+test('Chrome self-contained version archives in batches of three and keeps failures selected', () => {
+  assert.match(chromeSource, /\w+\+=3/);
+  assert.match(chromeSource, /slice\(\w+,\w+\+3\)/);
   assert.match(chromeSource, /Promise\.all/);
-  assert.match(chromeSource, /succeeded\.forEach\(id=>sel\.delete\(id\)\)/);
+  assert.match(chromeSource, /forEach\(c=>x\.delete\(c\)\)/);
 });
 
 test('bookmarklets remain within practical mobile bookmark sizes', () => {
   assert.ok(bookmarklet.length < 100000, `bookmarklet too large: ${bookmarklet.length}`);
   assert.ok(miniBookmarklet.length < 10000, `mini bookmarklet too large: ${miniBookmarklet.length}`);
-  assert.ok(chromeBookmarklet.length < 12000, `Chrome bookmarklet too large: ${chromeBookmarklet.length}`);
+  assert.ok(chromeBookmarklet.length < 4000, `Chrome bookmarklet too large: ${chromeBookmarklet.length}`);
 });
