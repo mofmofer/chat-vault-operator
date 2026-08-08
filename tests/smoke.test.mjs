@@ -5,10 +5,12 @@ import vm from 'node:vm';
 
 const source = await readFile(new URL('../src/chat-vault-operator.js', import.meta.url), 'utf8');
 const miniSource = await readFile(new URL('../src/chat-vault-operator-mini.js', import.meta.url), 'utf8');
+const chromeSource = await readFile(new URL('../src/chat-vault-operator-chrome-self-contained.js', import.meta.url), 'utf8');
 const bookmarklet = (await readFile(new URL('../dist/chat-vault-operator-bookmarklet.txt', import.meta.url), 'utf8')).trim();
 const miniBookmarklet = (await readFile(new URL('../dist/chat-vault-operator-mini-bookmarklet.txt', import.meta.url), 'utf8')).trim();
+const chromeBookmarklet = (await readFile(new URL('../dist/chat-vault-operator-chrome-self-contained-bookmarklet.txt', import.meta.url), 'utf8')).trim();
 
-for (const [name, code] of [['source', source], ['mini source', miniSource]]) {
+for (const [name, code] of [['source', source], ['mini source', miniSource], ['Chrome source', chromeSource]]) {
   test(`${name} is syntactically valid JavaScript`, () => {
     assert.doesNotThrow(() => new vm.Script(code));
   });
@@ -20,12 +22,14 @@ test('encoded bookmarklet decodes to syntactically valid JavaScript', () => {
   assert.doesNotThrow(() => new vm.Script(decoded));
 });
 
-test('mini bookmarklet is syntactically valid JavaScript', () => {
-  assert.ok(miniBookmarklet.startsWith('javascript:'));
-  assert.doesNotThrow(() => new vm.Script(miniBookmarklet.slice('javascript:'.length)));
-});
+for (const [name, code] of [['mini bookmarklet', miniBookmarklet], ['Chrome bookmarklet', chromeBookmarklet]]) {
+  test(`${name} is syntactically valid JavaScript`, () => {
+    assert.ok(code.startsWith('javascript:'));
+    assert.doesNotThrow(() => new vm.Script(code.slice('javascript:'.length)));
+  });
+}
 
-for (const [name, code] of [['source', source], ['mini source', miniSource]]) {
+for (const [name, code] of [['source', source], ['mini source', miniSource], ['Chrome source', chromeSource]]) {
   test(`${name} contains archive-only safety guards`, () => {
     assert.match(code, /["']?is_archived["']?\s*:\s*true/);
     assert.doesNotMatch(code, /is_visible\s*:\s*false/);
@@ -38,13 +42,21 @@ for (const [name, code] of [['source', source], ['mini source', miniSource]]) {
   });
 }
 
-test('mobile version has three-way concurrency and adaptive slowdown', () => {
+test('legacy mobile version has three-way concurrency and adaptive slowdown', () => {
   assert.match(miniSource, /c\s*=\s*3/);
   assert.match(miniSource, /c\s*=\s*1/);
   assert.match(miniSource, /Promise\.all/);
 });
 
+test('Chrome self-contained version archives in batches of three and keeps failures selected', () => {
+  assert.match(chromeSource, /\w+\+=3/);
+  assert.match(chromeSource, /slice\(\w+,\w+\+3\)/);
+  assert.match(chromeSource, /Promise\.all/);
+  assert.match(chromeSource, /forEach\(c=>x\.delete\(c\)\)/);
+});
+
 test('bookmarklets remain within practical mobile bookmark sizes', () => {
   assert.ok(bookmarklet.length < 100000, `bookmarklet too large: ${bookmarklet.length}`);
   assert.ok(miniBookmarklet.length < 10000, `mini bookmarklet too large: ${miniBookmarklet.length}`);
+  assert.ok(chromeBookmarklet.length < 4000, `Chrome bookmarklet too large: ${chromeBookmarklet.length}`);
 });
